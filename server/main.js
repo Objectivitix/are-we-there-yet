@@ -14,8 +14,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Endpoint to get the first step
-app.post("/api/get-first-step", async (req, res) => {
+// Endpoint to get the "route"
+app.post("/api/get-leg", async (req, res) => {
   const { origin, destination } = req.body;
 
   if (!origin || !destination) {
@@ -55,10 +55,16 @@ app.post("/api/get-first-step", async (req, res) => {
     }
 
     const data = JSON.parse(raw);
-    console.log(data);
-    const firstStep = data.routes[0].legs[0].steps[0];
+    const leg = data.routes?.[0].legs[0];
 
-    res.json({ firstStep });
+    if (leg === undefined) {
+      return res.status(500).json({
+        message: `Server error: Unable to find route (could be geocoding issue).`,
+      });
+    }
+
+    console.log({ ...leg });
+    res.json({ ...leg });
   } catch (error) {
     res.status(500).json({
       message: `Server error: API call threw an error. See server console.`,
