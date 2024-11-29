@@ -5,6 +5,7 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 import "./App.css";
 import speak from "./synth";
+import { BEGIN_NEW_NAVIGATION, EXIT_NAVIGATION, REQUEST_UPDATE } from "./commands";
 
 async function getUserLocation() {
   const pos = await new Promise((resolve, reject) => {
@@ -17,10 +18,6 @@ async function getUserLocation() {
   return { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
 }
 
-function getVoiceline(step) {
-  return `In ${step.distanceMeters} meters, ${step.navigationInstruction.instructions}.`;
-}
-
 function App() {
   const [destination, setDestination] = useState(null);
   const leg = useRef(null);
@@ -28,11 +25,26 @@ function App() {
   const { transcript } = useSpeechRecognition({
     commands: [
       {
-        command: "Hey Map direct me to *",
+        command: BEGIN_NEW_NAVIGATION,
         callback: async (dest) => {
-          setDestination(dest);
-          await route(dest);
-          sayNextStep();
+          speak(`User has requested that we begin a new trip to: ${dest}`);
+          // setDestination(dest);
+          // await route(dest);
+          // sayNextStep();
+          // sayRouteData();
+        },
+      },
+      {
+        command: REQUEST_UPDATE,
+        callback: async () => {
+          speak("User has requested a navigation update.");
+        },
+      },
+      {
+        command: EXIT_NAVIGATION,
+        callback: () => {
+          leg.current = null;
+          speak("Exiting navigation.");
         },
       },
     ],
@@ -65,7 +77,16 @@ function App() {
   }
 
   function sayNextStep() {
-    speak(getVoiceline(leg.current.steps[0]));
+    const step = leg.current.steps[0];
+    speak(
+      `In ${step.distanceMeters} meters, ${step.navigationInstruction.instructions}.`,
+    );
+  }
+
+  function sayRouteData() {
+    speak(
+      `${leg.current.distanceMeters} more total meters to go. Estimated time: ${leg.current.duration}.`,
+    );
   }
 
   async function handleSubmit(evt) {
@@ -102,7 +123,11 @@ function App() {
           Navigate
         </button>
       </form>
-      <button onClick={() => SpeechRecognition.startListening({ continuous: true })}>Enable Voice-Ac</button>
+      <button
+        onClick={() => SpeechRecognition.startListening({ continuous: true })}
+      >
+        Enable Voice-Ac
+      </button>
       <p>{transcript}</p>
     </>
   );

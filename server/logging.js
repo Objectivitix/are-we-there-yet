@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export function logGoogleResponse(apiName, responseText) {
+export async function logGoogleResponse(apiName, responseText) {
   const directory = path.join(__dirname, "logs/google-api-resps");
 
   // Ensure the directory exists
@@ -21,4 +21,30 @@ export function logGoogleResponse(apiName, responseText) {
 
   // Write the input string to the file
   fs.writeFileSync(filePath, responseText, "utf8");
+
+  updateAggregateData(directory);
+}
+
+function updateAggregateData(directory, apiName) {
+  const filePath = path.join(directory, "aggregate.json");
+
+  let data = { [apiName]: {callsN: 1}};
+
+  if (fs.existsSync(filePath)) {
+    try {
+      const raw = fs.readFileSync(filePath, "utf8");
+      data = JSON.parse(raw);
+    } catch (error) {
+      console.error("Couldn't update aggregate data. Error reading aggregate.json:", error.message);
+      return;
+    }
+  }
+
+  if (!data[apiName]) {
+    data[apiName] = { callsN: 0 };
+  }
+
+  data[apiName].callsN += 1;
+
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 }

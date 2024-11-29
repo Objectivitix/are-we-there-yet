@@ -1,7 +1,7 @@
 export default {
   overrides: [
     {
-      files: "*.html",
+      files: ["*.html", "commands.js"],
       options: {
         printWidth: 100,
       },
