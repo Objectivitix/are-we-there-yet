@@ -36,7 +36,9 @@ export const REQUEST_UPDATE = [
   ),
   hello(/ (?:what's|what is)/, NEXT_STEP),
   hello(/ (?:what's|what is) (?:my|the|our) (?:ETA|travel time|distance)/),
-  hello(/ how much (?:further|longer|distance|time) (?:is|do we have|do I have|to) (?:left|remaining|to go)/),
+  hello(
+    / how much (?:further|longer|distance|time) (?:is|do we have|do I have|to) (?:left|remaining|to go)/,
+  ),
   hello(/ how much (?:further|longer|distance|time) (?:until|till)/, NEXT_STEP),
   hello(
     / how (?:far|long|many meters|many more meters|many kilometers|many more kilometers) (?:until|till)/,

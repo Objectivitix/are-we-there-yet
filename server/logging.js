@@ -22,20 +22,23 @@ export async function logGoogleResponse(apiName, responseText) {
   // Write the input string to the file
   fs.writeFileSync(filePath, responseText, "utf8");
 
-  updateAggregateData(directory);
+  updateAggregateData(directory, apiName);
 }
 
 function updateAggregateData(directory, apiName) {
   const filePath = path.join(directory, "aggregate.json");
 
-  let data = { [apiName]: {callsN: 1}};
+  let data = { [apiName]: { callsN: 1 } };
 
   if (fs.existsSync(filePath)) {
     try {
       const raw = fs.readFileSync(filePath, "utf8");
       data = JSON.parse(raw);
     } catch (error) {
-      console.error("Couldn't update aggregate data. Error reading aggregate.json:", error.message);
+      console.error(
+        "Couldn't update aggregate data. Error reading aggregate.json:",
+        error.message,
+      );
       return;
     }
   }

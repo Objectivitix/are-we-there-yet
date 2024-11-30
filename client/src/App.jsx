@@ -5,17 +5,20 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 import "./App.css";
 import speak from "./synth";
-import { BEGIN_NEW_NAVIGATION, EXIT_NAVIGATION, REQUEST_UPDATE } from "./commands";
+import {
+  BEGIN_NEW_NAVIGATION,
+  EXIT_NAVIGATION,
+  REQUEST_UPDATE,
+} from "./commands";
+import { LocationBias, query, Waypoint } from "./utils";
 
 async function getUserLocation() {
-  const pos = await new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(resolve, reject, {
       enableHighAccuracy: true,
       timeout: 10000,
     });
   });
-
-  return { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
 }
 
 function App() {
@@ -52,26 +55,51 @@ function App() {
 
   async function route(dest) {
     try {
-      const origin = await getUserLocation();
+      const pos = await getUserLocation();
+      const origin = Waypoint.withCoords(
+        pos.coords.latitude,
+        pos.coords.longitude,
+      );
 
-      const response = await fetch("http://localhost:5504/api/get-leg", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          origin,
-          destination: dest || destination,
-        }),
+      let finalDest = dest ?? destination;
+
+      let legResp = await query("get-leg", {
+        origin,
+        destination: Waypoint.withAddress(dest ?? destination),
       });
 
-      if (!response.ok) {
+      if (legResp.status === 404) {
+        const searchResp = await query("text-search", {
+          textQuery: dest ?? destination,
+          locationBias: LocationBias(
+            pos.coords.latitude,
+            pos.coords.longitude,
+            1000,
+          ),
+        });
+
+        const {
+          name,
+          shortFormattedAddress,
+          location: { latitude, longitude },
+        } = await searchResp.json();
+        finalDest = `${name}, ${shortFormattedAddress}`;
+
+        legResp = await query("get-leg", {
+          origin,
+          destination: Waypoint.withCoords(latitude, longitude),
+        });
+      }
+
+      if (!legResp.ok) {
         speak("Something went wrong.");
         return;
       }
 
-      leg.current = await response.json();
+      speak(`Beginning new trip to ${finalDest}.`);
+      leg.current = await legResp.json();
     } catch (error) {
+      speak("Something went wrong.");
       console.error("Error:", error.message);
     }
   }
@@ -115,7 +143,9 @@ function App() {
               type="text"
               id="destination"
               value={destination ?? "Earl of March Secondary"}
-              onChange={(evt) => setDestination(evt.target.value)}
+              onChange={(evt) =>
+                setDestination(Waypoint.withAddress(evt.target.value))
+              }
             />
           </div>
         </div>
