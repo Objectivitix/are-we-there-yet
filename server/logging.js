@@ -6,34 +6,45 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function logGoogleResponse(apiName, responseText) {
-  const directory = path.join(__dirname, "logs/google-api-resps");
+const GOOGLE_DIR = path.join(__dirname, `logs/google-api-resps`);
 
-  // Ensure the directory exists
+// Date and time formatter
+const DateFormatter = new Intl.DateTimeFormat("en-CA");
+const TimeFormatter = new Intl.DateTimeFormat("en-CA", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
+export async function logGoogleResponse(apiName, responseText) {
+  const now = new Date();
+  const directory = path.join(GOOGLE_DIR, DateFormatter.format(now));
+
+  // Ensure the datestamped directory exists
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true });
   }
 
   // Generate a timestamped filename
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const timestamp = TimeFormatter.format(now).replace(/:/g, "-");
   const fileName = `${apiName}-${timestamp}.json`;
   const filePath = path.join(directory, fileName);
 
   // Write the input string to the file
   fs.writeFileSync(filePath, responseText, "utf8");
 
-  updateAggregateData(directory, apiName);
+  updateAggregateData(apiName);
 }
 
-function updateAggregateData(directory, apiName) {
-  const filePath = path.join(directory, "aggregate.json");
+function updateAggregateData(apiName) {
+  const filePath = path.join(GOOGLE_DIR, "aggregate.json");
 
-  let data = { [apiName]: { callsN: 1 } };
+  let data = {};
 
   if (fs.existsSync(filePath)) {
     try {
-      const raw = fs.readFileSync(filePath, "utf8");
-      data = JSON.parse(raw);
+      data = JSON.parse(fs.readFileSync(filePath, "utf8"));
     } catch (error) {
       console.error(
         "Couldn't update aggregate data. Error reading aggregate.json:",

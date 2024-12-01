@@ -1,5 +1,4 @@
-import fetch from "node-fetch";
-import { logGoogleResponse } from "./logging.js";
+import fetch from "./fetch.js";
 
 export function getLeg(googleURL) {
   return (req, res) => _getLeg(req, res, googleURL);
@@ -25,25 +24,18 @@ async function _getLeg(req, res, googleURL) {
   };
 
   try {
-    const response = await fetch(googleURL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const raw = await response.text();
-    logGoogleResponse("routes", raw);
+    const { response, data } = await fetch(
+      googleURL,
+      "routes",
+      payload,
+      "logs/google-api-resps/archives/logging-v1/routes-2024-11-27T02-17-34-499Z.json",
+    );
 
     if (!response.ok) {
       return res.status(500).json({
         message: `Server error: API call failed with status ${response.status}`,
       });
     }
-
-    const data = JSON.parse(raw);
-    console.log(data.geocodingResults);
 
     if (data.geocodingResults.destination?.geocoderStatus.code === 5) {
       return res.status(404).json({
@@ -78,16 +70,7 @@ async function _textSearch(req, res, googleURL) {
   };
 
   try {
-    const response = await fetch(googleURL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const raw = await response.text();
-    logGoogleResponse("text-search", raw);
+    const { response, data } = await fetch(googleURL, "text-search", payload);
 
     if (!response.ok) {
       return res.status(500).json({
@@ -95,7 +78,6 @@ async function _textSearch(req, res, googleURL) {
       });
     }
 
-    const data = JSON.parse(raw);
     const {
       displayName: { text: name },
       shortFormattedAddress,

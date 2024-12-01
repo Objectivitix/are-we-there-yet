@@ -31,10 +31,10 @@ function App() {
         command: BEGIN_NEW_NAVIGATION,
         callback: async (dest) => {
           speak(`User has requested that we begin a new trip to: ${dest}`);
-          // setDestination(dest);
-          // await route(dest);
-          // sayNextStep();
-          // sayRouteData();
+          setDestination(dest);
+          await route(dest);
+          sayNextStep();
+          sayRouteData();
         },
       },
       {
@@ -143,9 +143,7 @@ function App() {
               type="text"
               id="destination"
               value={destination ?? "Earl of March Secondary"}
-              onChange={(evt) =>
-                setDestination(Waypoint.withAddress(evt.target.value))
-              }
+              onChange={(evt) => setDestination(evt.target.value)}
             />
           </div>
         </div>
