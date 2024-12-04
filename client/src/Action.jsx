@@ -16,15 +16,14 @@ export default function Action({ iconSrc, iconAlt, onClick }) {
   }
 
   return (
-    <button className="action" onClick={(evt) => {
-      animateClick(evt);
-      onClick(evt);
-    }}>
-      <img
-        className="action__icon"
-        src={iconSrc}
-        alt={iconAlt}
-      />
+    <button
+      className="action"
+      onClick={(evt) => {
+        animateClick(evt);
+        onClick(evt);
+      }}
+    >
+      <img className="action__icon" src={iconSrc} alt={iconAlt} />
       {ripplePos && (
         <span
           className="action__ripple"

@@ -36,10 +36,7 @@ export default function Navigation() {
       },
       {
         command: EXIT_NAVIGATION,
-        callback: () => {
-          leg.current = null;
-          speak("Exiting navigation.");
-        },
+        callback: exitNavigation,
       },
     ],
   });
@@ -47,11 +44,16 @@ export default function Navigation() {
   async function handleNewDestSubmit(dest) {
     setIsNewDestRendered(false);
     await beginNewTrip(dest);
-  };
+  }
+
+  function exitNavigation() {
+    leg.current = null;
+    speak("Exiting navigation.");
+  }
 
   async function beginNewTrip(dest) {
     await route(dest);
-    sayNextStep();
+    sayCurrStep();
     sayRouteData();
   }
 
@@ -99,52 +101,108 @@ export default function Navigation() {
         return;
       }
 
-      speak(`Beginning new trip to ${finalDest}.`);
       leg.current = await legResp.json();
+      speak(`Beginning new trip to ${finalDest}.`);
     } catch (error) {
       speak("Something went wrong.");
       console.error("Error:", error.message);
     }
   }
 
-  function sayNextStep() {
+  function getIsNavigating() {
+    return leg.current !== null;
+  }
+
+  function getCurrStepDistanceMeters() {
     const step = leg.current.steps[0];
+    return step.distanceMeters;
+  }
+
+  function getCurrStepDistance() {
+    const step = leg.current.steps[0];
+    return step.localizedValues.distance.text;
+  }
+
+  function getCurrStepInstruction() {
+    const step = leg.current.steps[0];
+    return step.navigationInstruction.instructions;
+  }
+
+  function getCurrStepRoad() {
+    const arr = getCurrStepInstruction().split(/ (?:on|onto) /);
+
+    if (arr.length === 0) return "";
+    return arr[arr.length - 1];
+  }
+
+  function getRouteDistanceMeters() {
+    return leg.current.distanceMeters;
+  }
+
+  function getRouteDistance() {
+    return leg.current.localizedValues.distance.text;
+  }
+
+  function getRouteSpokenDuration() {
+    const seconds = parseInt(leg.current.duration);
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} minutes`;
+  }
+
+  function getRouteDuration() {
+    return leg.current.localizedValues.duration.text;
+  }
+
+  function getRouteETA() {
+    const seconds = parseInt(leg.current.duration);
+
+    const currentTime = new Date();
+    const arrivalTime = new Date(currentTime.getTime() + seconds * 1000);
+
+    return arrivalTime.toTimeString().slice(0, 5); // Returns "HH:MM"
+  }
+
+  function sayCurrStep() {
     speak(
-      `In ${step.distanceMeters} meters, ${step.navigationInstruction.instructions}.`,
+      `In ${getCurrStepDistanceMeters()} meters, ${getCurrStepInstruction()}.`,
     );
   }
 
   function sayRouteData() {
     speak(
-      `${leg.current.distanceMeters} more total meters to go. Estimated time: ${leg.current.duration}.`,
+      `${getRouteDistanceMeters()} more total meters to go. Estimated time: ${getRouteSpokenDuration()}.`,
     );
   }
 
   return (
     <div className="navigation">
-      <div className="curr-step">
-        <div className="curr-step__maneuver">
-          <img
-            className="curr-step__maneuver-icon"
-            src={test}
-            alt="Turn Right"
-          />
+      {getIsNavigating() && (
+        <div className="curr-step">
+          <div className="curr-step__maneuver">
+            <img
+              className="curr-step__maneuver-icon"
+              src={test}
+              alt="Turn Right"
+            />
+          </div>
+          <div className="curr-step__right-side">
+            <p className="curr-step__distance">{getCurrStepDistance()}</p>
+            <p className="curr-step__road">{getCurrStepRoad()}</p>
+          </div>
         </div>
-        <div className="curr-step__right-side">
-          <p className="curr-step__distance">1.5 km</p>
-          <p className="curr-step__road">Earl Grey Dr</p>
-        </div>
-      </div>
+      )}
       <Embed />
       <div className="trip-bar">
-        <div className="trip-bar__info">
-          <p className="trip-bar__distance">21 km</p>
-          <p className="time-info">
-            <span className="time-info__duration">30 min</span>
-            <span className="time-info__separator">•</span>
-            <span className="time-info__eta">15:07</span>
-          </p>
-        </div>
+        {getIsNavigating() && (
+          <div className="trip-bar__info">
+            <p className="trip-bar__distance">{getRouteDistance()}</p>
+            <p className="time-info">
+              <span className="time-info__duration">{getRouteDuration()}</span>
+              <span className="time-info__separator">•</span>
+              <span className="time-info__eta">{getRouteETA()}</span>
+            </p>
+          </div>
+        )}
         <div className="actions">
           <Action
             iconSrc={newDestIcon}
@@ -154,7 +212,7 @@ export default function Navigation() {
           <Action
             iconSrc={exitNavIcon}
             iconAlt="Exit Navigation"
-            onClick={() => console.log("exit nav clicked!")}
+            onClick={exitNavigation}
           />
         </div>
       </div>

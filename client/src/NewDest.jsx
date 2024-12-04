@@ -16,7 +16,7 @@ export default function NewDest({ onSubmit, onClose }) {
       onSubmit(trimmed);
       setInput(""); // Clear input after submission
     }
-  };
+  }
 
   return (
     <dialog ref={dialogRef} className="new-dest" onClose={onClose}>

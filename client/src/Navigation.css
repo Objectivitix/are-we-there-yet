@@ -35,7 +35,7 @@
 .curr-step__right-side {
   font-size: 2rem;
 
-  width: 30ch;
+  width: 40ch;
   margin-bottom: 2px;
 }
 
@@ -44,6 +44,12 @@
   font-weight: 600;
 
   margin-bottom: -0.5rem;
+}
+
+.curr-step__road {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .trip-bar {
