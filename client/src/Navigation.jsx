@@ -146,7 +146,7 @@ export default function Navigation() {
       }
 
       if (!legResp.ok) {
-        speak("Something went wrong.");
+        speak("Did not receive OK response from server.");
         return;
       }
 
@@ -155,7 +155,7 @@ export default function Navigation() {
       setCurrFinalDest(finalDest);
       return finalDest;
     } catch (error) {
-      speak("Something went wrong.");
+      speak("Something crashed.");
       console.error("Error:", error.message);
     }
   }

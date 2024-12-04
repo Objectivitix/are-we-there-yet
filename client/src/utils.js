@@ -1,4 +1,4 @@
-const SERVER_API_PATH = "http://localhost:5504/api/";
+const SERVER_API_PATH = "https://10.178.170.69:5504/api/";
 
 export async function getUserLocation() {
   return await new Promise((resolve, reject) => {
