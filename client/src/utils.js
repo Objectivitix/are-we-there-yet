@@ -1,5 +1,24 @@
 const SERVER_API_PATH = "http://localhost:5504/api/";
 
+export async function getUserLocation() {
+  return await new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+    });
+  });
+}
+
+export async function query(endpoint, payload) {
+  return await fetch(SERVER_API_PATH + endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
 export const Waypoint = {
   withCoords(latitude, longitude) {
     return {
@@ -24,14 +43,4 @@ export function LocationBias(latitude, longitude, radius) {
       radius,
     },
   };
-}
-
-export async function query(endpoint, payload) {
-  return await fetch(SERVER_API_PATH + endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
 }
