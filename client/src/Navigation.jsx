@@ -4,23 +4,38 @@ import "./Navigation.css";
 import Action from "./Action";
 import Embed from "./Embed";
 import NewDest from "./NewDest";
-import speak from "./synth";
-import {
+import { speak, cancelAllUtterances } from "./synth";
+import WAKEY_WAKEY, {
   BEGIN_NEW_NAVIGATION,
+  DETAILED_LOOKAHEAD,
   EXIT_NAVIGATION,
+  REQUEST_HELP,
   REQUEST_UPDATE,
+  textToDigit,
 } from "./commands";
 import { getUserLocation, query, LocationBias, Waypoint } from "./utils";
 import test from "./assets/maneuvers/turn-right.svg";
 import newDestIcon from "./assets/new-dest.svg";
 import exitNavIcon from "./assets/exit-nav.svg";
+import { HELP, NOT_ON_A_TRIP } from "./voicelines";
 
 export default function Navigation() {
   const [isNewDestRendered, setIsNewDestRendered] = useState(false);
+  const [currFinalDest, setCurrFinalDest] = useState(null);
   const leg = useRef(null);
 
   const { transcript } = useSpeechRecognition({
     commands: [
+      {
+        command: WAKEY_WAKEY,
+        callback: cancelAllUtterances,
+      },
+      {
+        command: REQUEST_HELP,
+        callback: () => {
+          speak(...HELP);
+        },
+      },
       {
         command: BEGIN_NEW_NAVIGATION,
         callback: async (dest) => {
@@ -32,6 +47,38 @@ export default function Navigation() {
         command: REQUEST_UPDATE,
         callback: async () => {
           speak("User has requested a navigation update.");
+
+          if (!getIsNavigating()) {
+            speak(NOT_ON_A_TRIP);
+            return;
+          }
+
+          await route(currFinalDest);
+
+          speak(
+            `${getStepVoiceline()}. The step after that is. ${getStepVoiceline(1)}`,
+          );
+        },
+      },
+      {
+        command: DETAILED_LOOKAHEAD,
+        callback: async (num) => {
+          speak(`User has requested a detailed lookahead.`);
+
+          if (!getIsNavigating()) {
+            speak(NOT_ON_A_TRIP);
+            return;
+          }
+
+          await route(currFinalDest);
+
+          const n = textToDigit(num);
+
+          for (let i = 0; i < n - 1; i++) {
+            speak(`${getStepVoiceline(i)}. After that.`);
+          }
+
+          speak(getStepVoiceline(n));
         },
       },
       {
@@ -48,12 +95,14 @@ export default function Navigation() {
 
   function exitNavigation() {
     leg.current = null;
+    setCurrFinalDest(null);
     speak("Exiting navigation.");
   }
 
   async function beginNewTrip(dest) {
-    await route(dest);
-    sayCurrStep();
+    const finalDest = await route(dest);
+    speak(`Beginning new trip to ${finalDest}.`);
+    sayStep();
     sayRouteData();
   }
 
@@ -102,7 +151,9 @@ export default function Navigation() {
       }
 
       leg.current = await legResp.json();
-      speak(`Beginning new trip to ${finalDest}.`);
+
+      setCurrFinalDest(finalDest);
+      return finalDest;
     } catch (error) {
       speak("Something went wrong.");
       console.error("Error:", error.message);
@@ -110,26 +161,26 @@ export default function Navigation() {
   }
 
   function getIsNavigating() {
-    return leg.current !== null;
+    return currFinalDest !== null;
   }
 
-  function getCurrStepDistanceMeters() {
-    const step = leg.current.steps[0];
+  function getStepDistanceMeters(index) {
+    const step = leg.current.steps[index ?? 0];
     return step.distanceMeters;
   }
 
-  function getCurrStepDistance() {
-    const step = leg.current.steps[0];
+  function getStepDistance(index) {
+    const step = leg.current.steps[index ?? 0];
     return step.localizedValues.distance.text;
   }
 
-  function getCurrStepInstruction() {
-    const step = leg.current.steps[0];
+  function getStepInstruction(index) {
+    const step = leg.current.steps[index ?? 0];
     return step.navigationInstruction.instructions;
   }
 
-  function getCurrStepRoad() {
-    const arr = getCurrStepInstruction().split(/ (?:on|onto) /);
+  function getStepRoad(index) {
+    const arr = getStepInstruction(index).split(/ (?:on|onto) /);
 
     if (arr.length === 0) return "";
     return arr[arr.length - 1];
@@ -162,10 +213,12 @@ export default function Navigation() {
     return arrivalTime.toTimeString().slice(0, 5); // Returns "HH:MM"
   }
 
-  function sayCurrStep() {
-    speak(
-      `In ${getCurrStepDistanceMeters()} meters, ${getCurrStepInstruction()}.`,
-    );
+  function getStepVoiceline(index) {
+    return `In ${getStepDistanceMeters(index)} meters, ${getStepInstruction(index)}.`;
+  }
+
+  function sayStep(index) {
+    speak(getStepVoiceline(index));
   }
 
   function sayRouteData() {
@@ -186,8 +239,8 @@ export default function Navigation() {
             />
           </div>
           <div className="curr-step__right-side">
-            <p className="curr-step__distance">{getCurrStepDistance()}</p>
-            <p className="curr-step__road">{getCurrStepRoad()}</p>
+            <p className="curr-step__distance">{getStepDistance()}</p>
+            <p className="curr-step__road">{getStepRoad()}</p>
           </div>
         </div>
       )}

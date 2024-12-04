@@ -9,6 +9,8 @@ function hello(...regexps) {
   return new RegExp(arr.map((regex) => regex.source).join(""), "i");
 }
 
+export default WAKEY_WAKEY;
+
 export const BEGIN_NEW_NAVIGATION = [
   hello(PLEASE, / (?:navigate|direct|redirect|lead|guide|take|get)(?: me| us)? to (.+)/),
   hello(/ (?:I|we) (?:want to|wanna|would like to|need to|have to|got to) (?:go|get) to (.+)/),
@@ -29,6 +31,7 @@ export const EXIT_NAVIGATION = [
 
 export const REQUEST_UPDATE = [
   hello(/ are we there yet/),
+  hello(/ give me an update/),
   hello(
     PLEASE,
     / (?:update me on|provide|give|give me|show|show me|say|repeat|restate|say again|tell me|tell me about|let me know|let me know about)/,
@@ -45,3 +48,26 @@ export const REQUEST_UPDATE = [
     NEXT_STEP,
   ),
 ];
+
+export const DETAILED_LOOKAHEAD = [hello(/ what are my next (\w+) steps/)];
+
+export const REQUEST_HELP = [hello(/ I need help/)];
+
+const DIGIT_STRINGS = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+];
+
+export function textToDigit(text) {
+  return text.replace(new RegExp(DIGIT_STRINGS.join("|"), "gi"), (match) =>
+    DIGIT_STRINGS.indexOf(match.toLowerCase()),
+  );
+}

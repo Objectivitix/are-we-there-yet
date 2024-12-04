@@ -1,7 +1,12 @@
 const synth = window.speechSynthesis;
 
-export default function speak(text) {
-  const utterance = new SpeechSynthesisUtterance(text);
+export function speak(...text) {
+  for (const segment of text) {
+    const utterance = new SpeechSynthesisUtterance(segment);
+    synth.speak(utterance);
+  }
+}
 
-  synth.speak(utterance);
+export function cancelAllUtterances() {
+  synth.cancel();
 }

@@ -3,7 +3,7 @@ import "regenerator-runtime/runtime";
 import SpeechRecognition from "react-speech-recognition";
 import Lobby from "./Lobby";
 import Navigation from "./Navigation";
-import speak from "./synth";
+import { speak } from "./synth";
 import { HELLO } from "./voicelines";
 
 export default function App() {
