@@ -1,0 +1,52 @@
+.action {
+  position: relative;
+  overflow: hidden;
+  border-radius: 50% 50%;
+  padding: 0.75rem;
+
+  transition: all 300ms;
+}
+
+.action:hover {
+  transform: translate(2px, -2px);
+  box-shadow: -2px 5px 0.6rem hsl(0 0 0% / 30%);
+}
+
+.action__ripple {
+  position: absolute;
+  transform: translate(-50%, -50%);
+
+  width: 25rem;
+  height: 25rem;
+  background-color: hsl(0 0 100%);
+  border-radius: 50%;
+
+  pointer-events: none;
+  animation: ripple 1000ms linear infinite;
+}
+
+.action__icon {
+  width: 3rem;
+}
+
+@media screen and (max-width: 65em), screen and (max-height: 50em) {
+  .action {
+    padding: 0.5rem;
+  }
+
+  .action__icon {
+    width: 2rem;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}

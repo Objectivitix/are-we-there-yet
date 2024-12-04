@@ -1,0 +1,154 @@
+.navigation {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.curr-step {
+  position: absolute;
+  top: 10vh;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: flex-end;
+  gap: 2rem;
+
+  background-image: url("./assets/step-bg.webp");
+  background-position: center;
+  background-size: cover;
+  padding: 1.25rem 2.125rem 1.25rem 1.5rem;
+  border-radius: 1rem;
+
+  box-shadow: 0 4px 0.8rem 0.35rem hsl(0 0 0% / 30%);
+}
+
+.curr-step__maneuver {
+  flex-shrink: 0;
+}
+
+.curr-step__maneuver-icon {
+  width: 7.5rem;
+}
+
+.curr-step__right-side {
+  font-size: 2rem;
+
+  width: 30ch;
+  margin-bottom: 2px;
+}
+
+.curr-step__distance {
+  font-size: 3rem;
+  font-weight: 600;
+
+  margin-bottom: -0.5rem;
+}
+
+.trip-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+
+  padding: 1.25rem 2rem;
+}
+
+.trip-bar__info {
+  font-size: 2.5rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.trip-bar__distance {
+  margin-bottom: -0.5rem;
+}
+
+.time-info {
+  color: hsl(0 0 40%);
+  font-size: 1.5rem;
+
+  display: flex;
+  gap: 1ch;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+@media screen and (max-width: 65em), screen and (max-height: 50em) {
+  .curr-step {
+    padding: 1rem 1.75rem 1rem 1.125rem;
+  }
+
+  .curr-step__maneuver-icon {
+    width: 5rem;
+  }
+
+  .curr-step__right-side {
+    font-size: 1.5rem;
+  }
+
+  .curr-step__distance {
+    font-size: 2rem;
+  }
+
+  .trip-bar__info {
+    font-size: 2rem;
+  }
+
+  .time-info {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 50em) {
+  .curr-step {
+    position: initial;
+    top: initial;
+    left: initial;
+    transform: none;
+
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+@media screen and (max-width: 35em) {
+  .curr-step {
+    gap: 1.25rem;
+    padding: 0.625rem 1.25rem 0.625rem 1rem;
+  }
+
+  .curr-step__maneuver-icon {
+    width: 4.25rem;
+  }
+
+  .curr-step__right-side {
+    font-size: 1.25rem;
+  }
+
+  .trip-bar {
+    padding: 1rem 2rem;
+    gap: 2rem;
+  }
+
+  .trip-bar__info {
+    font-size: 1.75rem;
+  }
+
+  .time-info {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 20em) {
+  .time-info__separator,
+  .time-info__eta {
+    display: none;
+  }
+}

@@ -1,0 +1,9 @@
+.embed {
+  flex-grow: 1;
+}
+
+.embed__iframe {
+  border: 0;
+  width: 100vw;
+  height: 100%;
+}
