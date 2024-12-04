@@ -1,11 +1,40 @@
 import "./Embed.css";
 
-export default function Embed() {
+const UNSECURE_API_KEY = "AIzaSyDB1x0w6IiKtI0PhUUi0nEMZAgnsVKNlO4";
+const DIRECTIONS_URL = "https://www.google.com/maps/embed/v1/directions";
+const VIEW_URL = "https://www.google.com/maps/embed/v1/view";
+
+function buildWaypointParam(waypoint) {
+  if (waypoint?.location?.latLng) {
+    const { latitude, longitude } = waypoint.location.latLng;
+    return `${latitude},${longitude}`;
+  }
+
+  return waypoint;
+};
+
+export default function Embed({ origin, destination }) {
+  let src;
+  console.log(destination);
+
+  if (origin && destination) {
+    src = new URL(DIRECTIONS_URL);
+    src.searchParams.set("origin", buildWaypointParam(origin));
+    src.searchParams.set("destination", buildWaypointParam(destination));
+  } else {
+    src = new URL(VIEW_URL);
+    src.searchParams.set("center", "45.3088,-75.8987");
+    src.searchParams.set("zoom", 12);
+  }
+
+  src.searchParams.set("key", UNSECURE_API_KEY);
+
   return (
     <div className="embed">
       <iframe
         className="embed__iframe"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.835434509366!2d-122.41941518468113!3d37.77492967975939!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858064cf1f4e4b%3A0x8e01bdfb3014d3c1!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1699546644701!5m2!1sen!2sus"
+        src={src.toString()}
+        referrerPolicy="no-referrer-when-downgrade"
         title="Google Maps Embed"
         allowFullScreen
       ></iframe>

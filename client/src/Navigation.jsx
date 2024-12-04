@@ -21,6 +21,7 @@ import { HELP, NOT_ON_A_TRIP } from "./voicelines";
 
 export default function Navigation() {
   const [isNewDestRendered, setIsNewDestRendered] = useState(false);
+  const [currOrigin, setCurrOrigin] = useState(null);
   const [currFinalDest, setCurrFinalDest] = useState(null);
   const leg = useRef(null);
 
@@ -152,6 +153,7 @@ export default function Navigation() {
 
       leg.current = await legResp.json();
 
+      setCurrOrigin(origin);
       setCurrFinalDest(finalDest);
       return finalDest;
     } catch (error) {
@@ -244,7 +246,7 @@ export default function Navigation() {
           </div>
         </div>
       )}
-      <Embed />
+      <Embed origin={currOrigin} destination={currFinalDest} />
       <div className="trip-bar">
         {getIsNavigating() && (
           <div className="trip-bar__info">
