@@ -11,7 +11,7 @@ function buildWaypointParam(waypoint) {
   }
 
   return waypoint;
-};
+}
 
 export default function Embed({ origin, destination }) {
   let src;

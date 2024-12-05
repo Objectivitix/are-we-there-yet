@@ -24,12 +24,7 @@ async function _getLeg(req, res, googleURL) {
   };
 
   try {
-    const { response, data } = await fetch(
-      googleURL,
-      "routes",
-      payload,
-      "logs/google-api-resps/archives/logging-v1/routes-2024-11-27T02-17-34-499Z.json",
-    );
+    const { response, data } = await fetch(googleURL, "routes", payload);
 
     if (!response.ok) {
       return res.status(500).json({

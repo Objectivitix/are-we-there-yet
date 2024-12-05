@@ -31,28 +31,28 @@ const API_KEY = process.env.API_KEY;
 const SEARCH_FIELDS = [
   "nextPageToken",
   "places.id",
-  // "places.accessibilityOptions",
-  // "places.addressComponents",
-  // "places.adrFormatAddress",
-  // "places.businessStatus",
-  // "places.containingPlaces",
-  // "places.displayName",
-  // "places.formattedAddress",
-  // "places.googleMapsLinks",
-  // "places.googleMapsUri",
-  // // "places.iconBackgroundColor",
-  // // "places.iconMaskBaseUri",
-  // "places.location",
-  // // "places.photos",
-  // "places.plusCode",
-  // "places.primaryType",
-  // "places.primaryTypeDisplayName",
-  // "places.pureServiceAreaBusiness",
-  // "places.shortFormattedAddress",
-  // "places.subDestinations",
-  // "places.types",
-  // "places.utcOffsetMinutes",
-  // "places.viewport",
+  "places.accessibilityOptions",
+  "places.addressComponents",
+  "places.adrFormatAddress",
+  "places.businessStatus",
+  "places.containingPlaces",
+  "places.displayName",
+  "places.formattedAddress",
+  "places.googleMapsLinks",
+  "places.googleMapsUri",
+  // "places.iconBackgroundColor",
+  // "places.iconMaskBaseUri",
+  "places.location",
+  // "places.photos",
+  "places.plusCode",
+  "places.primaryType",
+  "places.primaryTypeDisplayName",
+  "places.pureServiceAreaBusiness",
+  "places.shortFormattedAddress",
+  "places.subDestinations",
+  "places.types",
+  "places.utcOffsetMinutes",
+  "places.viewport",
 ];
 
 const ROUTES_URL = `https://routes.googleapis.com/directions/v2:computeRoutes?key=${API_KEY}&fields=*`;
@@ -80,5 +80,7 @@ if (isHttps) {
 
 // Start the server
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on ${isHttps ? "https" : "http"}://${localIPAddress}:${PORT}`);
+  console.log(
+    `Server running on ${isHttps ? "https" : "http"}://${localIPAddress}:${PORT}`,
+  );
 });
